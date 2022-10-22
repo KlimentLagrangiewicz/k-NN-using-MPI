@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 		printf("Not enough parameters...\n");
 		exit(1);
 	}
-	int rank, n = atoi(argv[1]), m = atoi(argv[2]), n2 = atoi(argv[3]), k = atoi(argv[4]), noc, numOfProc, i, j;
+	int rank, n = atoi(argv[1]), m = atoi(argv[2]), n2 = atoi(argv[3]), k = atoi(argv[4]), noc, numOfProc, i;
 	double *xTrain = (double*)malloc(n * m * sizeof(double));
 	double *xTest = (double*)malloc(n2 * m * sizeof(double));
 	int *yTrain = (int*)malloc(n * sizeof(int));
@@ -34,12 +34,9 @@ int main(int argc, char **argv) {
 	MPI_Bcast(xTest, n2 * m, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(yTrain, n, MPI_INT, 0, MPI_COMM_WORLD);
 	MPI_Comm_size(MPI_COMM_WORLD, &numOfProc);
-	for (i = 0; i < n2; i += numOfProc) {
-		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-		j = i + rank;
-		if (j < n2) {
-			yTestbuf[j] = getClass(xTrain, yTrain, xTest, n, m, k, noc, j);
-		}
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	for (i = rank; i < n2; i += numOfProc) {
+		yTestbuf[i] = getClass(xTrain, yTrain, xTest, n, m, k, noc, i);
 	}
 	MPI_Allreduce(yTestbuf, yTest, n2, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 	_time = MPI_Wtime() - _time;

@@ -27,9 +27,9 @@ void normalization(double *x, double *y, const int n1, const int n2, const int m
 		for (i = j; i < buf1; i += m) {
 			x[i] /= sig;
 		}
-        for (i = j; i < buf2; i += m) {
-        	y[i] /= sig;
-        }
+		for (i = j; i < buf2; i += m) {
+			y[i] /= sig;
+		}
 	}
 }
 
