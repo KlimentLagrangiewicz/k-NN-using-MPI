@@ -7,7 +7,7 @@
 #include "knn.h"
 
 int main(int argc, char **argv) {
-	if (argc < 9) {
+	if (argc < 8) {
 		printf("Not enough parameters...\n");
 		exit(1);
 	}
@@ -42,12 +42,18 @@ int main(int argc, char **argv) {
 	_time = MPI_Wtime() - _time;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	if (rank == 0) {
-		int *id = (int*) malloc(n2 * sizeof(int));
-		fscanfIdealSpliting(id, n2, argv[8]);
-		a = calcAccuracy(yTest, id, n2);
-		fprintfFullRes(yTest, n2, a, _time, argv[7]);
-		free(id);
-		printf("Time for k-NN classification = %lf s.;\nAccuracy of k-NN classification = %lf;\nThe work of the program is completed!\n", _time, a);
+		if (argc > 8) {
+			int *id = (int*) malloc(n2 * sizeof(int));
+			fscanfIdealSpliting(id, n2, argv[8]);
+			a = calcAccuracy(yTest, id, n2);
+			fprintfFullRes(yTest, n2, a, _time, argv[7]);
+			free(id);
+			printf("Time for k-NN classification = %lf s.;\nAccuracy of k-NN classification = %lf;\nThe work of the program is completed!\n", _time, a);
+		} else {
+			fprintfResult(yTest, n2, _time, argv[7]);
+			printf("Time for k-NN classification = %lf s.;\nThe work of the program is completed!\n", _time);
+		}
+
 	}
 	MPI_Finalize();
 	free(xTrain);

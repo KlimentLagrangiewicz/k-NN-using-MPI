@@ -54,14 +54,14 @@ double calcAccuracy(const int *y, const int *id, const int n) {
 	return (double)j / (double)n;
 }
 
-void fprintfResult(const int *y, const int n, const char *fn) {
+void fprintfResult(const int *y, const int n, const double t, const char *fn) {
 	FILE *fl;
 	if ((fl = fopen(fn, "a")) == NULL) {
 		printf("Error in opening %s result file\n", fn);
 		exit(1);
 	}
 	int i;
-	fprintf(fl, "Result of k-NN classification...\n");
+	fprintf(fl, "Result of k-NN classification...\nTime for classification = %lf s.;\n", t);
 	for (i = 0; i < n; i++)
 		fprintf(fl, "Object[%d]: %d;\n", i, y[i]);
 	fprintf(fl, "\n");
@@ -75,8 +75,7 @@ void fprintfFullRes(const int *y, const int n, const double a, const double t, c
 		exit(1);
 	}
 	int i;
-	fprintf(fl, "Result of k-NN classification...\n");
-	fprintf(fl, "Time for classification = %lf s.;\nAccuracy of classification = %lf;\n", t, a);
+	fprintf(fl, "Result of k-NN classification...\nTime for classification = %lf s.;\nAccuracy of classification = %lf;\n", t, a);
 	for (i = 0; i < n; i++)
 		fprintf(fl, "Object[%d]: %d;\n", i, y[i]);
 	fprintf(fl, "\n");
