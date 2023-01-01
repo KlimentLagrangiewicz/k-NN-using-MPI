@@ -1,35 +1,39 @@
 #include "knn.h"
 
 void normalization(double *x, double *y, const int n1, const int n2, const int m) {
-	const int buf1 = n1 * m, buf2 = n2 * m;
-	double av, d, sig;
-	int i, j;
-	for (j = 0; j < m; j++) {
-		av = sig = 0;
-		for (i = j; i < buf1; i += m) {
-			av += x[i];
+	const int s1 = n1 * m, s2 = n2 * m;
+	double sd, Ex, Exx;
+	int i, j = 0;
+	while (j < m) {
+		i = j;
+		Ex = Exx = 0;
+		while (i < s1) {
+			sd = x[i];
+			Ex += sd;
+			Exx += sd * sd;
+			i += m;
 		}
-		for (i = j; i < buf2; i += m) {
-			av += y[i];
+		i = j;
+		while (i < s2) {
+			sd = y[i];
+			Ex += sd;
+			Exx += sd * sd;
+			i += m;
 		}
-		av /= (n1 + n2);
-		for (i = j; i < buf1; i += m) {
-			d = x[i] - av;
-			sig += d * d;
-			x[i] = d;
+		Exx /= n1 + n2;
+		Ex /= n1 + n2;
+		sd = sqrt(Exx - Ex * Ex);
+		i = j;
+		while (i < s1) {
+			x[i] = (x[i] - Ex) / sd;
+			i += m;
 		}
-		for (i = j; i < buf2; i += m) {
-			d = y[i] - av;
-			sig += d * d;
-			y[i] = d;
+		i = j;
+		while (i < s2) {
+			y[i] = (y[i] - Ex) / sd;
+			i += m;
 		}
-		sig = sqrt(sig / (n1 + n2));
-		for (i = j; i < buf1; i += m) {
-			x[i] /= sig;
-		}
-		for (i = j; i < buf2; i += m) {
-			y[i] /= sig;
-		}
+		j++;
 	}
 }
 
@@ -43,25 +47,23 @@ double distEv(const double *x, const double *c, const int m) {
 	return r;
 }
 
-int getClass(const double *xTrain, const int *yTrain, const double *xTest, const int n, const int m, const int k, const int noc, const int i) {
+int getClass(const double *xTrain, const int *yTrain, const double *xTest, const int n, const int m, const int k, const int noc, const int i,
+	double *d, char *v, int *r) {
 	int j, l, id = 0;
-	double *d = (double*)malloc(n * sizeof(double));
-	int *r = (int*)malloc(noc * sizeof(int));
-	short *v = (short*)malloc(n * sizeof(short));
-	memset(v, 0, n * sizeof(short));
+	memset(v, 0, n * sizeof(char));
 	memset(r, 0, noc * sizeof(int));
 	for (j = 0; j < n; j++) {
-		d[j] = distEv(&xTest[i * m], &xTrain[j * m], m);
+		d[j] = distEv(&xTest[i], &xTrain[j * m], m);
 	}
 	double min_d;
 	for (j = 0; j < k; j++) {
 		l = 0;
-		while (v[l]) l++;
+		while ((v[l]) && (l < n)) l++;
 		min_d = d[l];
 		id = l;
 		l++;
 		for (; l < n; l++) {
-			if ((v[l] == 0) && (d[l] < min_d)) {
+			if ((!v[l]) && (d[l] < min_d)) {
 				min_d = d[l];
 				id = l;
 			}
@@ -77,9 +79,6 @@ int getClass(const double *xTrain, const int *yTrain, const double *xTest, const
 			id = j;
 		}
 	}
-	free(d);
-	free(v);
-	free(r);
 	return id;
 }
 

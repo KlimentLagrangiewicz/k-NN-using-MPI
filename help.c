@@ -6,11 +6,10 @@ void fscanfTrainData(double *x, int *y, const int n, const int m, const char *fn
 		printf("Error in opening %s file...\n", fn);
 		exit(1);
 	}
-	int i, j, k;
+	int i, j;
 	for (i = 0; i < n && !feof(fl); i++) {
-		k = i * m;
-		for (j = 0; j < m && !feof(fl); j++) {
-			if (fscanf(fl, "%lf", &x[k + j]) == 0) {}
+		for (j = i * m; j < (i * m + m) && !feof(fl); j++) {
+			if (fscanf(fl, "%lf", &x[j]) == 0) {}
 		}
 		if (!feof(fl)) {
 			if (fscanf(fl, "%d", &y[i]) == 0) {}
@@ -84,8 +83,10 @@ void fprintfFullRes(const int *y, const int n, const double a, const double t, c
 
 int getNumOfClass(const int *y, const int n) {
 	int i, j, cur;
-	short *v = (short*)malloc(n * sizeof(short));
-	memset(v, 0, n * sizeof(short));
+	char *v = (char*)malloc(n * sizeof(char));
+	for (i = 0; i < n; i++) {
+		v[i] = 0;
+	}
 	for (i = 0; i < n; i++) {
 		while ((v[i]) && (i < n)) i++;
 		cur = y[i];
@@ -96,7 +97,7 @@ int getNumOfClass(const int *y, const int n) {
 	}
 	cur = 0;
 	for (i = 0; i < n; i++) {
-		if (v[i] == 0) cur++;
+		if (!v[i]) cur++;
 	}
 	free(v);
 	return cur;
