@@ -53,6 +53,7 @@ void MPI_Scalingtestdata(double* const x, const int n, const int m) {
 		int pid;
 		MPI_Comm_rank(MPI_COMM_WORLD, &pid);
 		if (pid == 0) autoscaling(x, n, m);
+		MPI_Bcast(x, n * m , MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	} else {
 		double *localX = (double*)malloc(perProc * m * sizeof(double));
 		MPI_Scatter(x, perProc * m, MPI_DOUBLE, localX, perProc * m, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -272,7 +273,6 @@ int getClass2(const double* const x, const double *xTrain, const int *yTrain, co
 	int *fr = (int*)calloc(l, sizeof(int));
 	for (i = 0; i < k; i++)
 		fr[yTrain[y[i]]]++;
-	
 	i = getPosMax(fr, l);
 	free(y);
 	free(fr);
